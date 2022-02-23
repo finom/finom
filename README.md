@@ -11,7 +11,7 @@ And many more.
 
 I'm also available to get hired thru [Upwork](https://www.upwork.com/freelancers/~013ad74f3ced3e3071). Unfortunately I don't accept any proposals for any work outside of it. 
 
-Feel free to subscribe and star my repos!
+Feel free to follow me and star my repos!
 
 <!--
 **finom/finom** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
