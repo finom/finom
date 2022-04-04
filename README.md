@@ -5,7 +5,7 @@ My name is Andrey (also Andrii) Gubanov. I live in the open-source universe sinc
 - [use-change](https://github.com/finom/use-change) - the new and the most simple state management library for React.
 - [bala](https://github.com/finom/bala) - the tiniest function for DOM elements selection.
 - [github-embed](https://github.com/finom/github-embed) - a tool that allows to embed files from any Github repository on any HTML page.
-- [Altamoon](https://github.com/Altamoon/altamoon) - a trading interface for Binance Perpetual Futures with [growing ecosystem](https://github.com/Altamoon).
+- [Altamoon](https://github.com/finom/altamoon) - a trading interface for Binance Perpetual Futures with [growing ecosystem](https://github.com/Altamoon).
 
 And many more.
 
