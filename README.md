@@ -27,3 +27,24 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
 -->
+
+![image](https://user-images.githubusercontent.com/1082083/161627830-9445f7a7-bbaf-4e48-aa11-bcc059fa718c.png)
+
+![image](https://user-images.githubusercontent.com/1082083/161627913-38b86ace-889d-4e8e-bfec-ea79836ed47c.png)
+
+![image](https://user-images.githubusercontent.com/1082083/161627986-c9c284fb-0fc1-43ba-a1fc-4a38baa72d78.png)
+
+![image](https://user-images.githubusercontent.com/1082083/161628063-8f783e84-5a9a-4980-9834-08c9d5f70be1.png)
+
+![image](https://user-images.githubusercontent.com/1082083/161628119-487812ba-e54a-4a4c-9547-5bd8a47799f7.png)
+
+![image](https://user-images.githubusercontent.com/1082083/161628188-c85872a0-7964-47d1-a7ed-9808024b4aed.png)
+
+![image](https://user-images.githubusercontent.com/1082083/161628271-4c1686eb-1c74-4b43-a4bc-b53bb5819815.png)
+
+
+
+
+
+
+Here are some ideas to get you started:
