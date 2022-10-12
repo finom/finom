@@ -9,7 +9,7 @@ My name is Andrey (also Andrii) Gubanov. I live in the open-source universe sinc
 
 And many more.
 
-I'm also available to get hired thru [Upwork](https://www.upwork.com/freelancers/~013ad74f3ced3e3071). Unfortunately I don't accept any proposals for any work outside of it. 
+I'm also available to get hired thru [Upwork](https://www.upwork.com/freelancers/~013ad74f3ced3e3071).
 
 Feel free to follow me and star my repos!
 
