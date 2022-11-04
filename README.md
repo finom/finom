@@ -12,7 +12,7 @@ And many more.
 My favourite tech stack is:
 
 - [React](https://reactjs.org/)
-- [NextJS framework](https://nextjs.org/)
+- [NextJS](https://nextjs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [TailwindCSS](https://tailwindcss.com/)
 - [Prisma ORM](https://www.prisma.io/)
