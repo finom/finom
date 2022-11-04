@@ -9,6 +9,15 @@ My name is Andrey (also Andrii) Gubanov. I live in the open-source universe sinc
 
 And many more.
 
+My favourite tech stack is:
+
+- [NextJS framework](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [Prisma ORM](https://www.prisma.io/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [ESLint](https://eslint.org/)
+
 I'm also available to get hired thru [Upwork](https://www.upwork.com/freelancers/~013ad74f3ced3e3071).
 
 Feel free to follow me and star my repos!
