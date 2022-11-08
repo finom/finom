@@ -1,3 +1,5 @@
+[![](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
+
 ### Hi there 👋
 
 My name is Andrey (also Andrii) Gubanov. I live in the open-source universe since 2011. Most of my projects can be found on my page [opensource.gubanov.eu](https://opensource.gubanov.eu/). Most highlighted projects are:
