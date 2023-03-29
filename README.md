@@ -15,11 +15,11 @@ My favourite tech stack is:
 
 - [React](https://reactjs.org/)
 - [NextJS](https://nextjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
+- [TypeScript](https://www.typescriptlang.org/) (essential!)
 - [TailwindCSS](https://tailwindcss.com/)
-- [Prisma ORM](https://www.prisma.io/)
-- [PostgreSQL](https://www.postgresql.org/)
+- [Prisma ORM](https://www.prisma.io/) (I don't have preference on what DB is going to be used whether it would be MongoDB, MySQL or PostgreSQL)
 - [ESLint](https://eslint.org/)
+- [auth0](https://auth0.com/)
 
 I'm also available to get hired thru [Upwork](https://www.upwork.com/freelancers/~013ad74f3ced3e3071).
 
