@@ -18,7 +18,7 @@ My favourite tech stack is:
 - [NestJS](https://nestjs.com/) (for higher complexity back-end)
 - [TypeScript](https://www.typescriptlang.org/) (essential!)
 - [TailwindCSS](https://tailwindcss.com/)
-- [Prisma ORM](https://www.prisma.io/) (I don't have preference on what DB is going to be used whether it would be MongoDB, MySQL or PostgreSQL)
+- [Prisma ORM](https://www.prisma.io/) (I don't have any special preference on DB provider, it depends on a situation)
 - [ESLint](https://eslint.org/)
 - [auth0](https://auth0.com/)
 
