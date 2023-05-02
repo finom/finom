@@ -15,7 +15,7 @@ My favourite tech stack is:
 
 - [React](https://reactjs.org/)
 - [NextJS](https://nextjs.org/)
-- [NestJS](https://nestjs.com/) (for higher complexity back-end)
+- [NestJS](https://nestjs.com/) (for back-end of higher complexity)
 - [TypeScript](https://www.typescriptlang.org/) (essential!)
 - [TailwindCSS](https://tailwindcss.com/)
 - [Prisma ORM](https://www.prisma.io/) (I don't have any special preference on DB provider, it depends on a situation)
