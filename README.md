@@ -2,7 +2,7 @@
 
 ### Hi there 👋
 
-My name is Andrii (also Andrey) Gubanov. I live in the open-source universe since 2011. Most of my projects can be found on my page [opensource.gubanov.eu](https://opensource.gubanov.eu/). Most highlighted projects are:
+My name is Andrii (also Andrey) Gubanov. I live in the open-source universe since 2011. Most of my projects can be found on my page [opensource.gubanov.eu](https://opensource.gubanov.eu/). The highlighted projects are:
 
 - [use-change](https://github.com/finom/use-change) - the new and the most simple state management library for React.
 - [bala](https://github.com/finom/bala) - the tiniest function for DOM elements selection.
