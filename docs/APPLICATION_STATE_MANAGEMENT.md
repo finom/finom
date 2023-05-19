@@ -141,7 +141,7 @@ const rootStore = {
 }
 ```
 
-You know what? Now you can have an ID or an array of IDs which allows you to easily get needed entities.
+Now you can have an ID or an array of IDs which allows you to easily get needed entities.
 
 ```ts
 const company = rootStore.companies.data[user.company];
