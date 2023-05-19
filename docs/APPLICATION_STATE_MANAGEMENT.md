@@ -222,4 +222,5 @@ That's it. If you have any question or an idea please open an issue or send me a
 - The app state structure is clear and understabdable to new team members.
 - We write less code thanks to the automatic response handling.
 - We've got all those antities available everywhere within the app, not depending on what is going to use them and how they're going to be used, thanks to the simple key-value storage for entities.
+- We don't need to worry about what server-side function is going to return, that's what I call **format-agnostic**.
 - Cheaper development!
