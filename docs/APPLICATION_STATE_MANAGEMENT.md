@@ -165,6 +165,8 @@ Let's make a pseudo-code-like component that helps to summarise everything what'
 const Users = () => {
   const [ids, setIds] = useOurCoolStore(/* ... */); // basically if you don't want to store IDs at the global state you can simply use setState instead
   const data = useOurCoolStore(/* ... */);
+  
+  // we don't really need useMemo here, but that's just for simplicity
   const users = useMemo(() => ids.map((id) => data[id]), [data, ids]);
   
   useEffect(() => {
