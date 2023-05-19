@@ -201,7 +201,7 @@ interface Props {
 VS:
 
 interface Props {
-  user: User & { company: Company };
+  user: User & { company: Company & { products: Product[]; } };
 }
 */
 
