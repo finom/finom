@@ -170,7 +170,7 @@ const Users = () => {
   const users = useMemo(() => ids.map((id) => data[id]), [data, ids]);
   
   const loadUsers = useCallback(async () => {
-     const userIds = api('/users');
+     const userIds = await api('/users');
      setIds(userIds);
   }, [])
   
