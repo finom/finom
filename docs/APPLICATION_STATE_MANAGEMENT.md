@@ -52,10 +52,10 @@ return user;
 How's that usually handled if you don't have a good strategy to do that?
 
 ```js
-const resp = await (await (fetch('...'))).json(); // WTF is in the resp?
+const resp = await (await (fetch('/users'))).json(); // WTF is in the resp?
 ```
 
-You'd need to define a TypeScript type (or utilise the type magic of Prisma) that describes what's needed to be returned. After that you're going to need to handle the response by using it directly at your component (if you make the fetch in `useEffect`) or in the application store.
+You'd need to define a TypeScript interface (or utilise the type magic of Prisma) that describes what's needed to be returned. After that you're going to need to handle the response by using it directly at your component (if you make the fetch in `useEffect`) or in the application store.
 
 If you work on a large app you should never fetch and handle API data at components because if your component is relatively big you're going to need to pass your reduced response to child components as props which decreased code quality and requires you to define child component props. If you have many child components you're going to spend too much time on development. I strictly recommend to handle responses somewhere outside: if we talk about Redux that can be a middleware, a saga, an asynchronous action creator or something else.
 
@@ -63,7 +63,7 @@ Our goal is simplify API response as much as possible, to have as simple typings
 
 Your global application state (you can call it "store") is going to be split into multiple entities. For now we have user, company and product. Still, the idea is library-agnostic and I'm describibg only a shape of our store. What you're going to do and how it's going to be implemented is up to you.
 
-The nested response from above needs to be parsed and **recursively flattened**. We're going to replace nested entities with their ID. After the response is flattened we're going to get the following objects:
+The nested response from above needs to be parsed and **recursively flattened**.  We're going to replace nested entities with their ID. After the response is flattened we're going to get the following objects:
 
 ```
 const users = [{
@@ -95,7 +95,7 @@ const products = [{
 }]
 ```
 
-Now let's build our store. The store is split by entities and every entity has `data` field. `data` is a key-value object where keys are entity IDs, and values are flattened entities themselves.
+Now let's build our store. The store is split by entities and every entity has `data` field. `data` is a key-value object where keys are entity IDs, and values are flattened entities themselves. To identify entity type and figure out where entities need to be stored we use `entityType` field that's a read-only DB field.
 
 ```ts
 const rootStore = {
@@ -147,11 +147,11 @@ You know what? Now you can have an ID or an array of IDs which allows you to eas
 const company = rootStore.companies.data[user.company];
 ```
 
-An obvious question: how can I get those IDs to map those users and render them on the page? It's super simple. I usually have a function that does all the flattening magic and **returns an ID or a list of IDs**.
+An obvious question: how can I get those IDs to map those users and render them on the page? I usually have a function that does all the flattening magic and **returns an ID or a list of IDs**.
 
 ```js
 const ids = await api('/users');
-// rootStore.users.ids = ids
+// rootStore.users.ids = ids <- you can store the IDs in your users part of store
 
 const users = ids.map(id => rootStore.users.data[id]);
 ```
@@ -180,6 +180,8 @@ const Users = () => {
 }
 ```
 
+That's it. If you have any question or an idea please open an issue or send me a DM.
+
 ## What we've achieved?
 
 - We don't need to handle nested data anymore.
@@ -187,7 +189,7 @@ const Users = () => {
 - We've simplified typing.
 - We've built the store the way when it's going to be always extensible, even if you have a lot of entity types (tens or even hundreds?), a lot of features and pages.
 - We've decreased probability of bugs.
-- The structure is clear and understabdable to new team members.
+- The app state structure is clear and understabdable to new team members.
 - We write less code thanks to the automatic response handling.
 - We've got all those antities available everywhere within the app, not depending on what is going to use them and how they're going to be used, thanks to the simple key-value storage for entities.
 - Cheaper development!
