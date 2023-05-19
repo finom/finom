@@ -138,7 +138,7 @@ Why we don't use /api folder to create APIs? Because NextJS isn't as good as Nes
 
 #### Why?
 
-There is nothing as efficient as Tailwind: neither of BEM, CSS modules, and even styled components. Critics of this tool usually say that your classNames aren't modular and cannot be re-used somewhere else. That's true but only for pure HTML where you need to repeat same code with small modifications multople times. But in React that's not really correct because your modularity comes from component architecture. 
+There is nothing as efficient as Tailwind: neither of BEM, CSS modules, and even styled components. Critics of this tool usually say that your classNames aren't modular and cannot be re-used somewhere else. That's true but only for pure HTML where you need to repeat same code with small modifications multiple times. But in React that's not really correct because your modularity comes from component architecture. 
 
 ```tsx
 <Button>Click me</Button>
@@ -155,7 +155,7 @@ And you shouldn't care if your Button internally looks not that nice:
     hover:bg-indigo-700">{children}</a>
 ```
 
-...because, thanks to modules we don't need to care about how a particular component was implemented.
+...because, thanks to modules we don't need to care about how a particular component were implemented.
 
 
 
