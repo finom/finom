@@ -186,6 +186,30 @@ const Users = () => {
 }
 ```
 
+From now if you want to create a child component that needs access to a specified entity, you should pass its id instead of passing the entire entity object.
+
+```jsx
+<UserInfo id={userId} />
+```
+
+```jsx
+interface Props {
+  id: string;
+}
+
+/*
+VS:
+
+interface Props {
+  user: User & { company: Company };
+}
+*/
+
+const UserInfo = ({ id }: Props) => {
+  const user = useGetUserFromStoreSomehow(id)
+}
+```
+
 That's it. If you have any question or an idea please open an issue or send me a DM.
 
 ## What we've achieved?
