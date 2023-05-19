@@ -158,7 +158,7 @@ const users = ids.map(id => rootStore.users.data[id]);
 
 I usually prefer to have a list of IDs in our store to make them available as part of React Context at every child component but that's not a requirement if your component is relatively simple and you don't need those IDs to be available globally.
 
-Let's make a pseudo-code-like component that summarises everythgin what's said above.
+Let's make a pseudo-code-like component that helps to summarise everything what's said above.
 
 ```ts
 // useOurCoolStore is an imaginary function that extracts data from your store and also allows to set it
