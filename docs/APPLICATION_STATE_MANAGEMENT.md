@@ -169,12 +169,14 @@ const Users = () => {
   // we don't really need useMemo here, but that's just for simplicity
   const users = useMemo(() => ids.map((id) => data[id]), [data, ids]);
   
+  const loadUsers = useCallback(async () => {
+     const userIds = api('/users');
+     setIds(userIds);
+  }, [])
+  
   useEffect(() => {
-    void (async () => {
-       const userIds = api('/users');
-       setIds(userIds);
-    })();
-  }, [/* ... */]);
+    void loadUsers();
+  }, [loadUsers]);
   
   return (
     <div>{users.map(/*...*/)}</div>
