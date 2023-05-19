@@ -16,12 +16,12 @@ The main concept of this idea is an **entity**. An entity is an object that come
     name: 'Project management Inc',
     products: [{
       id: 'product_1',
-      entity_type: 'product',
+      entityType: 'product',
       type: 'laptop',
       name: 'Macbook Air'
     }, {
       id: 'product_2',
-      entity_type: 'product',
+      entityType: 'product',
       type: 'smartphone',
       name: 'iPhone 16 Lame Edition'
     }]
@@ -84,12 +84,12 @@ const companies = [{
 // products are not modified since they have no nested entities
 const products = [{
   id: 'product_1',
-  entity_type: 'product',
+  entityType: 'product',
   type: 'laptop',
   name: 'Macbook Air'
 }, {
   id: 'product_2',
-  entity_type: 'product',
+  entityType: 'product',
   type: 'smartphone',
   name: 'iPhone 16 Lame Edition'
 }]
