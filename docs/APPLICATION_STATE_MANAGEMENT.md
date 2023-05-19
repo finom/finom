@@ -36,7 +36,7 @@ I will explain `entityType` field below.
 The object above is returned from some ORM call, let's imagine if we'd use Prisma.
 
 ```ts
-const user = await prisma.user.fundMany({
+const users = await prisma.user.fundMany({
   include: {
     company: {
       include: {
@@ -46,7 +46,7 @@ const user = await prisma.user.fundMany({
   }
 });
 
-return user;
+return users;
 ```
 
 How's that usually handled if you don't have a good strategy to do that?
