@@ -126,13 +126,13 @@ const rootStore = {
     data: {
       product_1: {
         id: 'product_1',
-        entity_type: 'product',
+        entityType: 'product',
         type: 'laptop',
         name: 'Macbook Air'
       }, 
       product_2: {
         id: 'product_2',
-        entity_type: 'product',
+        entityType: 'product',
         type: 'smartphone',
         name: 'iPhone 16 Lame Edition'
       }
