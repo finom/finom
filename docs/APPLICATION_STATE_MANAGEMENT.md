@@ -57,7 +57,7 @@ const resp = await (await (fetch('/users'))).json(); // WTF is in the resp?
 
 You'd need to define a TypeScript interface (or utilise the type magic of Prisma) that describes what's needed to be returned. After that you're going to need to handle the response by using it directly at your component (if you make the fetch in `useEffect`) or in the application store.
 
-If you work on a large app you should never fetch and handle API data manually at components because if your component is relatively big you're going to need to pass your reduced response to child components as props which decreased code quality and requires you to define child component props types. If you have many child components you're going to spend too much time on development. I strictly recommend to handle responses somewhere outside: if we talk about Redux that can be a middleware, a saga, an asynchronous action creator or something else.
+If you work on a large app you should never fetch and handle API data manually at components because if your component is relatively big you're going to need to pass your reduced response to child components as props which decreased code quality and requires you to define child component props types. If you have many child components you're going to spend too much time on development. I strictly recommend to handle responses somewhere outside: if we talk about Redux that can be a middleware, a saga, an asynchronous action creator or something else. And then access this data within the child component.
 
 Our goal is simplify API response as much as possible, to have as simple typings as possible, to make data handling as smooth as possible. That's the trick:
 
