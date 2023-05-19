@@ -205,7 +205,31 @@ interface Props {
 */
 
 const UserInfo = ({ id }: Props) => {
-  const user = useGetUserFromStoreSomehow(id);
+  const user = rootStore.users.data[id];;
+}
+```
+
+Let's modify the example above and apply this pattern. 
+
+```ts
+const Users = () => {
+  const [ids, setIds] = useState([]);
+  const { data } = rootStore.users;
+  
+  // no more "users" no "data" variable
+  
+  const loadUsers = useCallback(async () => {
+     const userIds = await api('/users');
+     setIds(userIds);
+  }, [])
+  
+  useEffect(() => {
+    void loadUsers();
+  }, [loadUsers]);
+  
+  return ( // we just map over the IDs
+    <div>{ids.map((id) => <UserInfo id={id} />)}</div>
+  )
 }
 ```
 
