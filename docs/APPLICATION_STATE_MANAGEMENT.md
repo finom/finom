@@ -185,7 +185,7 @@ const Users = () => {
 }
 ```
 
-From now if you want to create a child component that needs access to a specified entity, you should pass its id instead of passing the entire entity object.
+From now if you want to create a child component that needs access to a specified entity, you should pass its id instead of passing the entire entity object. Then the child component is going to "decide" what other data it needs. Parent component doesn't need to "worry" about what format of data should be passed into the child component.
 
 ```jsx
 <UserInfo id={userId} />
@@ -205,7 +205,7 @@ interface Props {
 */
 
 const UserInfo = ({ id }: Props) => {
-  const user = useGetUserFromStoreSomehow(id)
+  const user = useGetUserFromStoreSomehow(id);
 }
 ```
 
