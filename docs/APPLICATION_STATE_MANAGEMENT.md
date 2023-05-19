@@ -154,6 +154,8 @@ const ids = await api('/users');
 // rootStore.users.ids = ids <- you can store the IDs in your users part of store
 
 const users = ids.map(id => rootStore.users.data[id]);
+const companies = users.map(({ company }) => rootStore.companies.data[company]);
+const products = companies.flatMap(({ products }) => products.map(/* ... */))
 ```
 
 I usually prefer to have a list of IDs in our store to make them available as part of React Context at every child component but that's not a requirement if your component is relatively simple and you don't need those IDs to be available globally.
