@@ -160,16 +160,15 @@ const products = companies.flatMap(({ products }) => products.map((productId) =>
 
 I usually prefer to have a list of IDs in our store to make them available as part of React Context at every child component but that's not a requirement if your component is relatively simple and you don't need those IDs to be available globally.
 
-Let's make a pseudo-code-like component that helps to summarise everything what's said above.
+Let's make a component that helps to summarise everything what's said above.
 
 ```ts
-// useOurCoolStore is an imaginary function that extracts data from your store and also allows to set it
 const Users = () => {
-  const [ids, setIds] = useOurCoolStore(/* ... */); // basically if you don't want to store IDs at the global state you can simply use setState instead
-  const data = useOurCoolStore(/* ... */);
+  const [ids, setIds] = useState([]);
+  const { data } = rootStore.users;
   
   // we don't really need useMemo here, but that's just for simplicity
-  const users = useMemo(() => ids.map((id) => data[id]), [data, ids]);
+  const users = useMemo(() => ids.map((id) => data[id]), [ids]);
   
   const loadUsers = useCallback(async () => {
      const userIds = await api('/users');
