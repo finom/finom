@@ -147,7 +147,7 @@ Now you can have an ID or an array of IDs which allows you to easily get needed 
 const company = rootStore.companies.data[user.company];
 ```
 
-An obvious question: how can I get those IDs to map those users and render them on the page? I usually have a function that does all the flattening magic and **returns an ID or a list of IDs**.
+An obvious question: how can I get those IDs to map those users and render them on the page? I usually have a function that does all the flattening magic and **returns an ID or a list of IDs** instead of returning the entire response.
 
 ```js
 const ids = await api('/users');
