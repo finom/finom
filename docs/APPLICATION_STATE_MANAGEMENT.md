@@ -1,6 +1,6 @@
 # How to manage application state in large React projects, or format-agnostic data handling
 
-At this article I'm going to explain the most efficient way to handle data at the application state that's coming from the server. This idea is library-agnistic and can be used with any library like Redux, MobX or [my own library](https://github.com/finom/use-change) (I recommend to check it out!). It's also going to probably useful with other rendering libraries such as Vue but I don't have enough experience with it to be sure.
+At this article I'm going to explain the most efficient way to handle data at the application state that's coming from the server. This idea is library-agnistic and can be used with any library like Redux but here I'm going to use [use-change](https://github.com/finom/use-change). It's also going to probably useful with other rendering libraries such as Vue but I don't have enough experience with it to be sure.
 
 The main concept of this idea is an **entity**. An entity is an object that comes from your database: a user, a company, a product, a something. Any entity can have dependencies in form of their properties. Let's use the following object as a reference to what I'm describibg here.
 
@@ -63,7 +63,7 @@ Our goal is simplify API response as much as possible, to have as simple typings
 
 Your global application state (you can call it "store") is going to be split into multiple entities. For now we have user, company and product. Still, the idea is library-agnostic and I'm describibg only a shape of our store. What you're going to do and how it's going to be implemented is up to you.
 
-The nested response from above needs to be parsed and **recursively flattened**.  We're going to replace nested entities with their ID. After the response is flattened we're going to get the following objects:
+The nested response from above needs to be parsed and **recursively flattened**. We're going to replace nested entities with their ID. After the response is flattened we're going to get the following objects:
 
 ```
 const users = [{
@@ -95,10 +95,31 @@ const products = [{
 }]
 ```
 
-Now let's build our store. The store is split by entities and every entity has `data` field. `data` is a key-value object where keys are entity IDs, and values are flattened entities themselves. To identify entity type and figure out where entities need to be stored we use `entityType` field that's a read-only DB field.
+Now let's build our store. It's going to have the following type:
+
 
 ```ts
-const rootStore = {
+interface RootStore {
+  someRootField: number;
+  users: {
+    ids: string;
+    data: Record<string, User>
+  }
+  companies: {
+    ids: string;
+    data: Record<string, Company>
+  }
+  companies: {
+    ids: string;
+    data: Record<string, Product>
+  }
+}
+```
+
+The store is split by entities and every entity has `data` field. `data` is a key-value object where keys are entity IDs, and values are flattened entities themselves. To identify entity type and figure out where entities need to be stored we use `entityType` field that's a read-only DB field. After the response is parsed you're going to get something your store that looks like that:
+
+```ts
+const rootStore: RootStore = {
   someRootField: 1,
   users: {
     ids: ['user_1'], // I'll explain it below
@@ -205,7 +226,8 @@ interface Props {
 */
 
 const UserInfo = ({ id }: Props) => {
-  const user = rootStore.users.data[id];;
+  // see https://github.com/finom/use-change/blob/main/docs/HOOKLESS.md
+  const user = rootStore.users.data.use(id);
 }
 ```
 
