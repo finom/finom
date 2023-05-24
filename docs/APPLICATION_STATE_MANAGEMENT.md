@@ -108,11 +108,9 @@ interface RootStore {
     data: Record<string, User>
   }
   companies: {
-    ids: string;
     data: Record<string, Company>
   }
   companies: {
-    ids: string;
     data: Record<string, Product>
   }
 }
