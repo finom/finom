@@ -1,5 +1,7 @@
 # How to manage application state in large React projects, or format-agnostic data handling
 
+(The article isn't finished but still shows the principle)
+
 At this article I'm going to explain the most efficient way to handle data at the application state that's coming from the server. This idea is library-agnistic and can be used with any library like Redux but here I'm going to use [use-change](https://github.com/finom/use-change). It's also going to probably useful with other rendering libraries such as Vue but I don't have enough experience with it to be sure.
 
 The main concept of this idea is an **entity**. An entity is an object that comes from your database: a user, a company, a product, a something. Any entity can have dependencies in form of their properties. Let's use the following object as a reference to what I'm describibg here.
