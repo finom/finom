@@ -36,7 +36,7 @@ I will explain `entityType` field below.
 The object above is returned from some ORM call, let's imagine if we'd use Prisma.
 
 ```ts
-const users = await prisma.user.fundMany({
+const users = await prisma.user.findMany({
   include: {
     company: {
       include: {
