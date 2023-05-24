@@ -214,7 +214,6 @@ Let's modify the example above and apply this pattern.
 ```ts
 const Users = () => {
   const [ids, setIds] = useState([]);
-  const { data } = rootStore.users;
   
   // no more "users" no "data" variable
   
