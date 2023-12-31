@@ -4,7 +4,7 @@
 
 My name is Andrii (also Andrey) Gubanov. I live in the open-source universe since 2011. Most of my projects can be found on my page [opensource.gubanov.eu](https://opensource.gubanov.eu/). The highlighted projects are:
 
-- [vovk.ts](https://github.com/finom/vovk) - a compact, zero-dependency library that constructs Next.js 13+ App Route Handlers from decorated classes
+- [vovk.ts](https://github.com/finom/vovk) - a compact, zero-dependency library inspired by NestJS that constructs Next.js 13+ App Route Handlers from decorated classes
 - [use-change](https://github.com/finom/use-change) - the new and the most simple state management library for React.
 - [tsimmes](https://github.com/finom/tsimmes) - the tiniest function for DOM elements selection.
 - [github-embed](https://github.com/finom/github-embed) - a tool that allows to embed files from any Github repository on any HTML page.
@@ -16,7 +16,6 @@ My favourite tech stack is:
 
 - [React](https://reactjs.org/)
 - [NextJS](https://nextjs.org/)
-- [NestJS](https://nestjs.com/) (for back-end of higher complexity)
 - [TypeScript](https://www.typescriptlang.org/) (essential!)
 - [TailwindCSS](https://tailwindcss.com/)
 - [Prisma ORM](https://www.prisma.io/) (I don't have any special preference on DB provider, it depends on a situation)
