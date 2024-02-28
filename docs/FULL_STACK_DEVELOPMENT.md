@@ -1,5 +1,7 @@
 # Recommended technological stack for a full-stack application
 
+(Thie article doesn't make sense today, I need to review and rewrite it)
+
 The goal:
 - Make development be faster and efficient (cheaper).
 - Make developer's communication within the team as shorter as possible (we don't block each other).
