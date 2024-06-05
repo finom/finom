@@ -6,5 +6,7 @@ My name is Andrii (also Andrey) Gubanov. I live in the open-source universe sinc
 
 [Become a Sponsor ♥️](https://github.com/sponsors/finom)
 
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=finom&theme=default&show_icons=true&hide_border=true&count_private=true)
+
   Visitor count: 
   <img src="https://profile-counter.glitch.me/finom/count.svg" width="150" align="top" />
