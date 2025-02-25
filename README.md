@@ -1,6 +1,6 @@
 ### Hi there 👋
 
-My name is Andrii (also Andrey) Gubanov. I live in the open-source universe since 2011. Most of my projects can be found on [opensource.gubanov.eu](https://opensource.gubanov.eu/). The latest one is [Vovk.ts](https://github.com/finom/vovk) - REST API library for Next.js. Feel free to follow my Github profile and star my repos!
+My name is Andrii (also Andrey) Gubanov. I live in the open-source universe since 2011. Most of my projects can be found on [opensource.gubanov.eu](https://opensource.gubanov.eu/). Feel free to follow my Github profile and star my repos!
 
 [Become a Sponsor ♥️](https://github.com/sponsors/finom)
 
