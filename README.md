@@ -6,7 +6,7 @@ I was one of ~1,047 GitHub owners hit by the **PolinRider** DPRK supply-chain at
 
 - [finom/vovk-hello-world](https://github.com/finom/vovk-hello-world) — Vovk.ts demo *(`postcss.config.mjs`)*
 - [finom/realtime-kanban](https://github.com/finom/realtime-kanban) — Vovk.ts demo *(`postcss.config.mjs`)*
-- [finom/blok](https://github.com/finom/blok) — personal project *(`postcss.config.mjs`)*
+- [finom/blok](https://github.com/finom/blok) — personal project, made it private *(`postcss.config.mjs`)*
 - [finom/opensource.gubanov.eu](https://github.com/finom/opensource.gubanov.eu) — my portfolio site *(`webpack.config.js`)*
 
 A near-miss was also caught in review on [finom/prisma-zod-generator](https://github.com/finom/prisma-zod-generator/commit/05e169512fdfb8f3492f0a259b445b2d0d629cba).
