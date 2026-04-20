@@ -12,12 +12,12 @@ Perform a comprehensive security scan for the **PolinRider** malware (DPRK Lazar
 Determine install scope by checking where this skill lives:
 
 - If this file exists at `$CLAUDE_PROJECT_DIR/.claude/skills/polinrider-scan/SKILL.md` or `./.claude/skills/polinrider-scan/SKILL.md` → **LOCAL scope**. Scan root = current working directory only. Skip filesystem-wide `find ~/` commands. Skip Phase 8 (system persistence). Skip Phase 9 (GitHub repos) unless user explicitly asks.
-- If this file exists at `~/.claude/skills/polinrider-scan/SKILL.md` (user-global) → **GLOBAL scope**. Scan root = `$HOME` and `~/Work`. Run all phases including system persistence and GitHub repo scan.
-- If the user passed an explicit argument (`local` or `global`), honor that instead.
+- If this file exists at `~/.claude/skills/polinrider-scan/SKILL.md` (user-global) → **GLOBAL scope**. Scan root = `$HOME`. Run all phases including system persistence and GitHub repo scan.
+- If the user passed an explicit argument, honor that instead. Accepted forms: `local`, `global`, or an absolute path (`/abs/path`) or `~`-prefixed path to use as the scan root.
 
-State the detected scope in one sentence before starting, then execute every phase below that applies to the scope. Do NOT ask for confirmation — execute automatically. Report findings at the end in a structured table. If you find active infections, remediate them immediately.
+State the detected scope and the resolved `$SCAN_ROOT` in one sentence before starting, then execute every phase below that applies to the scope. Do NOT ask for confirmation — execute automatically. Report findings at the end in a structured table. If you find active infections, remediate them immediately.
 
-In the commands below, `$SCAN_ROOT` means: the cwd in local scope, or `~/Work` (plus `$HOME` for persistence checks) in global scope.
+In the commands below, `$SCAN_ROOT` means: the cwd in local scope, or `$HOME` in global scope (or the explicit path the user provided). Persistence checks in Phase 8 always run against `$HOME` regardless of `$SCAN_ROOT`.
 
 ## Phase 1: Active Threat Neutralization
 
