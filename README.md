@@ -28,3 +28,18 @@ My name is Andrey Gubanov. I live in the open-source universe since 2011. Most o
 
   <img src="https://github-readme-stats-ten-zeta-25.vercel.app/api?username=finom&rank_icon=percentile&show_icons=true&theme=catppuccin_mocha" alt="GitHub Stats">
 
+---
+
+### Claude Code skills
+
+- [polinrider-scan](./skills/polinrider-scan) — scan for PolinRider supply-chain malware
+
+Install via [`npx skills`](https://github.com/vercel-labs/skills):
+
+```bash
+# project-local
+npx skills add finom/finom --skill polinrider-scan
+
+# global
+npx skills add finom/finom --skill polinrider-scan -g
+```
