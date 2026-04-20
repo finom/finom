@@ -7,6 +7,13 @@ description: Scan for the PolinRider DPRK/Lazarus supply-chain malware (March–
 
 Perform a comprehensive security scan for the **PolinRider** malware (DPRK Lazarus group supply-chain attack, March–April 2026). This malware targets JavaScript/Node.js developers, steals cryptocurrency wallets, and propagates through git repositories via force-push.
 
+The scan has **two steps**:
+
+1. **Phase 0** — run the official [`polinrider-scanner.sh`](https://github.com/OpenSourceMalware/PolinRider/blob/main/polinrider-scanner.sh) from OpenSourceMalware (the authoritative, regularly updated IOC scanner).
+2. **Phases 1–10** — AI-driven checks that extend the official scanner: caching/persistence edge cases, obfuscation heuristics, novel variant detection, and automated remediation.
+
+Both steps must run. The AI phases are not a replacement for the upstream scanner — they complement it.
+
 ## Scope detection (do this FIRST)
 
 Determine install scope by checking where this skill lives:
@@ -18,6 +25,26 @@ Determine install scope by checking where this skill lives:
 State the detected scope and the resolved `$SCAN_ROOT` in one sentence before starting, then execute every phase below that applies to the scope. Do NOT ask for confirmation — execute automatically. Report findings at the end in a structured table. If you find active infections, remediate them immediately.
 
 In the commands below, `$SCAN_ROOT` means: the cwd in local scope, or `$HOME` in global scope (or the explicit path the user provided). Persistence checks in Phase 8 always run against `$HOME` regardless of `$SCAN_ROOT`.
+
+## Phase 0: Run the official OSM scanner FIRST
+
+Before doing any AI-driven analysis, run the upstream shell scanner from [OpenSourceMalware/PolinRider](https://github.com/OpenSourceMalware/PolinRider). It's the authoritative source of IOCs and is updated when new variants surface.
+
+```bash
+# Download to a temp file, inspect, then run
+curl -fsSL -o /tmp/polinrider-scanner.sh \
+  https://raw.githubusercontent.com/OpenSourceMalware/PolinRider/main/polinrider-scanner.sh
+
+# Optional but recommended — skim the script before executing
+head -50 /tmp/polinrider-scanner.sh
+
+# Run against $SCAN_ROOT
+bash /tmp/polinrider-scanner.sh "$SCAN_ROOT"
+```
+
+Capture the scanner's output. Include its findings in the final report under a dedicated "Official scanner (OSM)" section. Then continue with Phase 1 onwards — the AI phases catch variants, stale caches, and edge cases the upstream scanner may not cover yet.
+
+If `curl` fails or the user is offline, note that Phase 0 was skipped and proceed with Phases 1–10.
 
 ## Phase 1: Active Threat Neutralization
 
@@ -453,6 +480,9 @@ Present results as:
 
 ```
 ## Scan Results (scope: LOCAL | GLOBAL)
+
+### Official scanner (OSM polinrider-scanner.sh)
+<exit code, summary of findings, or "skipped — offline">
 
 ### Active Threats
 | Type | Location | Status |
