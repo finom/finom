@@ -32,27 +32,14 @@ My name is Andrey Gubanov. I live in the open-source universe since 2011. Most o
 
 ### Claude Code skills
 
-Personal [Claude Code](https://docs.claude.com/en/docs/claude-code) skills I maintain in [`skills/`](./skills).
+- [polinrider-scan](./skills/polinrider-scan) — scan for PolinRider supply-chain malware
 
-#### [polinrider-scan](./skills/polinrider-scan)
-
-Scan for the [PolinRider](https://github.com/OpenSourceMalware/PolinRider) DPRK/Lazarus supply-chain malware. Checks running processes, config files, build caches, VS Code droppers, npm packages, git hooks, system persistence, and GitHub repos. Scope-aware: installing at `.claude/skills/polinrider-scan/` scans only the current project; installing at `~/.claude/skills/polinrider-scan/` scans the entire filesystem.
-
-Quick install (global):
+Install via [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
-mkdir -p ~/.claude/skills/polinrider-scan
-curl -fsSL https://raw.githubusercontent.com/finom/finom/main/skills/polinrider-scan/SKILL.md \
-  -o ~/.claude/skills/polinrider-scan/SKILL.md
+# project-local
+npx skills add finom/finom --skill polinrider-scan
+
+# global
+npx skills add finom/finom --skill polinrider-scan -g
 ```
-
-Quick install (project-local, from project root):
-
-```bash
-mkdir -p .claude/skills/polinrider-scan
-curl -fsSL https://raw.githubusercontent.com/finom/finom/main/skills/polinrider-scan/SKILL.md \
-  -o .claude/skills/polinrider-scan/SKILL.md
-```
-
-Then invoke in Claude Code with `/polinrider-scan` or ask Claude to "scan for PolinRider malware".
-
