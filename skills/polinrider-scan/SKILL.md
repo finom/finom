@@ -1,6 +1,20 @@
 ---
 name: polinrider-scan
-description: Scan a project or machine for the PolinRider DPRK/Lazarus supply-chain malware (March–April 2026 npm + VS Code campaign). Use whenever the user asks to scan, audit, or check for PolinRider, the postcss / tailwind / webpack / next config infection, the `temp_auto_push.bat` / `config.bat` propagation, the StakingGame `.vscode/tasks.json` dropper (UUID `e9b53a7c-2342-4b15-b02d-bd8b8f6a03f9`), or any IOC listed in `references/iocs.md`. Trigger proactively when the user reports unexplained `node -e` processes, `createRequire` showing up in simple ESM build configs, unfamiliar `tailwindcss-*-animate*` packages in `package.json` or lockfiles, `.vscode/tasks.json` with `runOn: folderOpen`, font files that read as plain text, or `*.bat` files appearing in JavaScript repo roots. Also trigger when the user mentions the DPRK / Lazarus npm supply-chain attack or the `OpenSourceMalware/PolinRider` repository.
+description: >-
+  Scan a project or machine for the PolinRider DPRK/Lazarus supply-chain
+  malware (March–April 2026 npm + VS Code campaign). Use whenever the user
+  asks to scan, audit, or check for PolinRider, the postcss / tailwind /
+  webpack / next config infection, the `temp_auto_push.bat` /
+  `config.bat` propagation, the StakingGame `.vscode/tasks.json` dropper
+  (UUID `e9b53a7c-2342-4b15-b02d-bd8b8f6a03f9`), or any IOC listed in
+  `references/iocs.md`. Trigger proactively when the user reports
+  unexplained `node -e` processes, `createRequire` showing up in simple
+  ESM build configs, unfamiliar `tailwindcss-*-animate*` packages in
+  `package.json` or lockfiles, `.vscode/tasks.json` with `runOn:
+  folderOpen`, font files that read as plain text, or `*.bat` files
+  appearing in JavaScript repo roots. Also trigger when the user mentions
+  the DPRK / Lazarus npm supply-chain attack or the
+  `OpenSourceMalware/PolinRider` repository.
 ---
 
 # PolinRider Malware Scan
