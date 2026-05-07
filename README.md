@@ -13,7 +13,7 @@ A near-miss was also caught in review on [finom/prisma-zod-generator](https://gi
 
 ### If you cloned or `npm install`ed from any of these before the cleanup
 
-Please run the OSM scanner ([`polinrider-scanner.sh`](https://github.com/OpenSourceMalware/PolinRider/blob/main/polinrider-scanner.sh)) and follow the [mitigation steps](https://github.com/OpenSourceMalware/PolinRider#recommended-actions) — audit your config files, delete any `temp_auto_push.bat`, and rotate build-environment secrets.
+Install the [`polinrider-scan`](./skills/polinrider-scan) skill (see install command below) and ask Claude to "scan for PolinRider globally". The skill walks the local file system using only standard utilities — no external downloads, no remote scripts — and reports any residue. Then follow the OSM project's mitigation guidance: audit your build config files, remove `temp_auto_push.bat` / `config.bat` and any `.gitignore` entries that hid them, and rotate any build-environment secrets the machine had access to.
 
 Everything on my side is fixed. Apologies to anyone exposed through my repos, and thanks for your patience — stupid situation, but handled.
 
