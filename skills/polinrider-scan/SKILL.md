@@ -65,11 +65,22 @@ For all `find` invocations, use these standard exclusions to avoid scanning irre
 -not -path "*/.turbo/*" -not -path "*/.parcel-cache/*" -not -path "*/.vite/*"
 ```
 
-And exclude this skill's own files (which legitimately contain IOC strings as detection patterns):
+And exclude every file that legitimately contains IOC strings as detection patterns:
 
 ```
-! -path "*/polinrider-scan/*" ! -name "iocs.md" ! -name "SKILL.md"
+! -path "*/polinrider-scan/*" ! -path "*/skills/polinrider-scan/*" \
+! -path "*/.agents/skills/polinrider-scan/*" \
+! -name "polinrider-scanner*" \
+! -name "settings.local.json" \
+! -name "iocs.md" ! -name "SKILL.md"
 ```
+
+These cover, in order:
+- This skill's source tree in any project
+- The skill installed via `npx skills` into `.agents/skills/` or `.claude/skills/`
+- The OSM project's official `polinrider-scanner.sh` (it's a detection tool, not malware, and ships with all IOCs as patterns)
+- Claude Code's `settings.local.json` permission allowlist (users approve specific grep patterns there, which captures IOC strings as text)
+- The skill's own `iocs.md` and `SKILL.md` documentation
 
 If running multiple independent phases, dispatch them as parallel Bash calls in a single message — they don't depend on each other and run faster in parallel.
 
@@ -108,7 +119,9 @@ Any current connection from a node process to one of those endpoints is **live e
 
 ### Phase 3 — Source code signatures
 
-Scan source files for known obfuscation markers, decoder names, shuffle seeds, XOR keys, and blockchain addresses. `grep -F` (fixed strings, no regex) is the safest match mode here:
+The IOC list splits into two tiers. Run them as separate greps because they have very different false-positive profiles.
+
+**Tier A (high-confidence, broad file scan)** — strings that effectively never appear outside PolinRider: the obfuscation markers, decoder function names, the rotated `Cot%3t=shtP`, the global injection markers, the XOR keys, the StakingGame UUID, and the specific TRON / Aptos exfiltration addresses. `grep -F` (fixed strings, no regex) is the safest match mode:
 
 ```bash
 find "$ROOT" -type f \
@@ -116,21 +129,41 @@ find "$ROOT" -type f \
      -o -name "*.jsx" -o -name "*.json" -o -name "*.bat" -o -name "*.sh" \) \
   -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" \
   -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/.cache/*" \
-  ! -path "*/polinrider-scan/*" -print0 2>/dev/null \
+  ! -path "*/polinrider-scan/*" ! -path "*/skills/polinrider-scan/*" \
+  ! -path "*/.agents/skills/polinrider-scan/*" \
+  ! -name "polinrider-scanner*" ! -name "settings.local.json" \
+  ! -name "iocs.md" ! -name "SKILL.md" -print0 2>/dev/null \
   | xargs -0 grep -lF \
-    -e 'rmcej%otb%' -e '_$_1e42' -e '2857687' -e '2667686' \
+    -e 'rmcej%otb%' -e '_$_1e42' \
     -e "global['!']" -e "global['r'] = require" -e "global['m'] = module" \
     -e 'Cot%3t=shtP' -e 'function MDy' -e 'var MDy=' \
-    -e '1111436' -e '3896884' -e "global['_V']" \
+    -e "global['_V']" \
     -e '2[gWfGj;<:-93Z^C' -e 'm6:tTh^D)cBz?NM]' \
     -e 'TMfKQEd7TJJa5xNZJZ2Lep838vrzrs7mAP' \
     -e 'TXfxHUet9pJVU1BgVkBAbrES4YUc1nGzcG' \
     -e '0xbe037400670fbf1c32364f762975908dc43eeb38759263e7dfcdabc76380811e' \
     -e '0x3f0e5781d0855fb460661ac63257376db1941b2bb522499e4757ecb3ebd5dce3' \
+    -e 'e9b53a7c-2342-4b15-b02d-bd8b8f6a03f9' \
     2>/dev/null
 ```
 
-For each file returned, open with the Read tool. Confirm the match is real (not a quoted string in a documentation file or a deliberately-named test fixture).
+Any file returned by Tier A is **high suspicion**. Open with the Read tool, confirm the match is real (not a quoted string in a documentation file or a deliberately-named test fixture).
+
+**Tier B (shuffle seeds, code-files-only)** — the four shuffle-seed integers `2857687`, `2667686`, `1111436`, `3896884`. These are 7-digit numbers that collide trivially with timestamps, prices, and trading volumes in financial / market data, so a Tier B hit on its own is almost always a false positive. Restrict the search to JS/TS source (skip JSON, lockfiles, bundled chunks):
+
+```bash
+find "$ROOT" -type f \
+  \( -name "*.js" -o -name "*.mjs" -o -name "*.cjs" -o -name "*.ts" -o -name "*.tsx" -o -name "*.jsx" \) \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" \
+  -not -path "*/dist/*" -not -path "*/build/*" -not -path "*/.cache/*" \
+  -not -path "*/data/klines/*" -not -path "*/.klines-cache/*" \
+  ! -path "*/polinrider-scan/*" ! -path "*/skills/polinrider-scan/*" \
+  ! -path "*/.agents/skills/polinrider-scan/*" \
+  ! -name "polinrider-scanner*" -print0 2>/dev/null \
+  | xargs -0 grep -lF -e '2857687' -e '2667686' -e '1111436' -e '3896884' 2>/dev/null
+```
+
+A Tier B file is only meaningful **if it also appears in Tier A results** — that combination is a confirmed infection. Standalone Tier B hits (a file with a seed but no other marker) need a manual read; if the match is in numeric data (timestamps, OHLCV candles, transaction IDs), discard.
 
 ### Phase 4 — Config file infection (the trailing-whitespace bomb)
 
@@ -150,21 +183,28 @@ find "$ROOT" -type f \
   -not -path "*/dist/*" -not -path "*/build/*" -print 2>/dev/null
 ```
 
-For each candidate, compute four signals:
+For each candidate, compute four signals. `grep -c` exits 1 when nothing matches, so capture the count defensively:
 
 ```bash
+f="<file>"
+
 # max line length — clean configs rarely exceed ~120 chars
-awk '{ if(length > max) max=length } END { print max+0 }' "<file>"
+maxlen=$(awk '{ if(length > max) max=length } END { print max+0 }' "$f" 2>/dev/null)
+maxlen=${maxlen:-0}
 
 # any line with 50+ consecutive spaces (the trailing-whitespace bomb)
-grep -cE ' {50,}' "<file>" 2>/dev/null
+long_ws=$(grep -cE ' {50,}' "$f" 2>/dev/null); long_ws=${long_ws:-0}
 
 # explicit known signatures
-grep -cF -e "global['!']" -e "global['_V']" -e '_$_1e42' -e 'function MDy' -e 'rmcej' -e 'Cot%3t=shtP' "<file>" 2>/dev/null
+has_sig=$(grep -cF -e "global['!']" -e "global['_V']" -e '_$_1e42' -e 'function MDy' -e 'rmcej' -e 'Cot%3t=shtP' "$f" 2>/dev/null); has_sig=${has_sig:-0}
 
 # createRequire residue — should not appear in a simple ESM build config
-grep -c 'createRequire' "<file>" 2>/dev/null
+has_cr=$(grep -c 'createRequire' "$f" 2>/dev/null); has_cr=${has_cr:-0}
+
+echo "$f maxlen=$maxlen ws=$long_ws sig=$has_sig cr=$has_cr"
 ```
+
+Wrap in a loop that consumes the candidate list. Use the `=${var:-0}` pattern to coerce empty output to 0 — that prevents the `bad math expression` errors that `(( ))` throws when the variable is unset or contains stray whitespace.
 
 A file is **suspect** if any of:
 
@@ -404,11 +444,13 @@ Confirm `gh` works:
 gh auth status 2>&1 | head -5
 ```
 
-If authenticated, search the user's GitHub for known IOCs across all their repos:
+If authenticated, search the user's GitHub for known IOCs across all their repos. The exclusion list mirrors the local-scope exclusions so detection-tool documentation and previously-installed copies of this skill don't generate noise:
 
 ```bash
 USER=$(gh api /user --jq '.login')
 echo "user=$USER"
+
+EXCLUDE='+-filename:polinrider-scanner.sh+-filename:iocs.md+-filename:SKILL.md+-filename:README.md+-path:polinrider-scan+-path:skills/polinrider-scan+-path:.agents/skills/polinrider-scan+-path:scripts/polinrider-scanner.sh'
 
 for q in \
   '_$_1e42' \
@@ -421,26 +463,31 @@ for q in \
   'tailwindcss-style-animate' \
   'e9b53a7c-2342-4b15-b02d-bd8b8f6a03f9'; do
   encoded=$(printf '%s' "$q" | jq -sRr @uri)
-  count=$(gh api "/search/code?q=${encoded}+user:${USER}+-filename:polinrider-scanner+-filename:iocs.md+-filename:SKILL.md" --jq '.total_count' 2>/dev/null)
+  count=$(gh api "/search/code?q=${encoded}+user:${USER}${EXCLUDE}" --jq '.total_count' 2>/dev/null)
   printf '%s\t%s\n' "${count:-?}" "$q"
 done
 ```
 
-Any non-zero count outside this skill's own files is a real finding. Drill in with the full `gh api "/search/code?q=..."` to surface the repo + path.
+Any non-zero count surviving those exclusions is a real finding. Drill in with the full `gh api "/search/code?q=...${EXCLUDE}" --jq '.items[]|"\(.repository.name)/\(.path)"'` to surface repo + path. Watch for `code_search` rate limits (10 / minute on most accounts) — pace the drill-ins.
 
 ## Step 4 — Interpret findings
 
 Categorize each finding:
 
 - **Active threat** — anything from Phase 1 (process) or Phase 2 (live C2 connection). Address immediately, before any other remediation.
-- **Confirmed infection** — Phase 3 (signature in source), Phase 4 (suspect config with both whitespace bomb AND a signature), Phase 5 (build cache hit), Phase 6 (tasks.json with the dropper combination or StakingGame UUID), Phase 7 (text disguised as binary), Phase 8 (propagation artifact or infected hook).
-- **High suspicion** — Phase 4 with one suspicious signal but no signature (long line OR long whitespace OR `createRequire` alone), Phase 9 (malicious npm package without a corresponding source signature — likely caught early), Phase 10 (obfuscation heuristic hit). Open the file and decide.
+- **Confirmed infection** — Phase 3a Tier-A signature in source, Phase 3a + Phase 3b co-hit on the same file, Phase 4 (suspect config with both whitespace bomb AND a signature), Phase 5 (build cache hit), Phase 6 (tasks.json with the dropper combination or StakingGame UUID), Phase 7 (text disguised as binary), Phase 8 (propagation artifact or infected hook).
+- **Residue from incomplete cleanup** — these are real but not actively exploitable: a `.gitignore` still listing `config.bat` / `temp_auto_push.bat`, a previously-infected build config still importing `createRequire` even though the malicious payload is gone, an old commit in git history. Worth cleaning up but not a live threat.
+- **High suspicion** — Phase 4 with one suspicious signal but no signature, Phase 9 (malicious npm package without a corresponding source signature — likely caught early), Phase 10 (obfuscation heuristic hit), Phase 3b standalone hit. Open the file and decide.
 - **Informational** — recently-modified configs that look clean, persistence mechanisms that look standard, GitHub matches that resolve to documentation about PolinRider.
 
 False-positive checklist before reporting:
 
-- The skill's own files (`iocs.md`, `SKILL.md`, anything under `polinrider-scan/`) deliberately reference the patterns. Always exclude.
-- Documentation about PolinRider in repos like `OpenSourceMalware/PolinRider` is not infection — same exclusion logic.
+- The skill's own files (`iocs.md`, `SKILL.md`, anything under `polinrider-scan/`) deliberately reference the patterns. Excluded by default.
+- Skill copies installed via `npx skills` into `.agents/skills/polinrider-scan/` or `.claude/skills/polinrider-scan/`. Excluded by default.
+- The OSM `polinrider-scanner.sh` shipped at `*/scripts/polinrider-scanner.sh` and inside Claude plugin marketplaces. Excluded by default.
+- Claude Code permission allowlists in `.claude/settings.local.json` quoting grep patterns that contain IOCs. Excluded by default.
+- Documentation about PolinRider in repos like `OpenSourceMalware/PolinRider` is not infection.
+- **Phase 3b shuffle-seed-only matches** (a file with `1111436`, `2857687`, `2667686`, or `3896884` but no Tier-A signature). These are 7-digit numbers that show up in trading volumes, OHLCV candles, transaction IDs, timestamps, and other numeric data. Always cross-check against Tier A before reporting.
 - A minified bundle in `dist/` or `build/` can trigger max-line-length checks; those folders are excluded by default. If a long line shows up in a `.config.*` file, that is **not** a normal minified bundle — config files are not minified output.
 - A very long line in `package-lock.json` is normal (lockfiles are excluded from Phase 3 grep on purpose).
 
@@ -458,8 +505,8 @@ Confirm with the user before destructive actions. Order:
    - Open with Read.
    - Identify the legitimate end of the file (the last meaningful line of `module.exports` / `export default`).
    - Truncate to that point.
-   - Remove any `createRequire` import the malware injected — postcss, tailwind, prettier ESM configs do not need it.
-5. **Delete propagation scripts** — `rm` each `config.bat`, `temp_auto_push.bat`, `temp_interactive_push.bat`, and remove their entries from `.gitignore`.
+   - Remove any `createRequire` import the malware injected — postcss, tailwind, prettier ESM configs do not need it. **An orphan `createRequire` import in a previously-infected config is residue from incomplete cleanup; treat it as confirmed infection history even if the obfuscated payload is no longer there.**
+5. **Delete propagation scripts and clean `.gitignore`** — `rm` each `config.bat`, `temp_auto_push.bat`, `temp_interactive_push.bat`. **Also remove the `config.bat` / `temp_auto_push.bat` lines from `.gitignore`** — the malware committed those entries to hide the dropped batch files from `git status`. A cleanup that deletes the .bat file but leaves the `.gitignore` line behind is a common partial-cleanup signature; the entry by itself is real residue and should be removed.
 6. **Delete VS Code droppers** — remove malicious task entries from `.vscode/tasks.json`, or delete the file if it's entirely the dropper. Delete fake-binary payload files identified in Phase 7.
 7. **Clean git/husky hooks** — for each infected hook, restore from `*.sample` (git) or remove the malicious lines (husky).
 8. **Remove malicious npm packages** — drop from `package.json`, delete the entire `node_modules/` directory, regenerate the lock file (`npm install` / `pnpm install` / `yarn install` / `bun install`).
