@@ -79,6 +79,46 @@ The rotated variant tags individual injections with sequential identifiers `8-st
 
 The malware family follows a naming convention: `tailwind*` + `*animat*` or `*style*`. Treat any unfamiliar package matching that shape as a candidate for manual review.
 
+### ChainVeil / ViteVenom expansion (July 2026)
+
+The campaign was later attributed across further ecosystems — npm, PyPI,
+Packagist, Go modules and the Chrome Web Store — with 108+ malicious packages and
+extensions published. The naming convention widened well past `tailwind*`, so the
+shape heuristic above is no longer sufficient on its own.
+
+| Cluster | Package | Version |
+|---|---|---|
+| ChainVeil | `tailwindcss-animatics` | 1.0.1 |
+| ChainVeil | `tailwindcss-animates-kit` | 1.0.1 |
+| ChainVeil | `tailwindcss-merge` | 1.0.1–1.0.4 |
+| ChainVeil | `sass-formats` | 1.0.2–1.0.5 |
+| ChainVeil | `sass-format` | 1.0.1 |
+| ChainVeil | `clsx-tailwind` | 1.0.1 |
+| ChainVeil | `typeorm-encrypt` | 1.0.1 |
+| ChainVeil | `rate-limit-flexible` | 1.0.1–1.0.2 |
+| ChainVeil | `rate-limits-flexible` | 1.0.1 |
+| ViteVenom | `@vite-mcp/vite-type` | 6.44.1 |
+| ViteVenom | `@vite-pro/vite-ui` | 2.5.10 |
+| ViteVenom | `@vitets/vite-ts` | 1.5.10 |
+| ViteVenom | `@vite-ts/vite-ui` | 6.44.1 |
+| ViteVenom | `@vite-tab/tab` | 3.15.10 |
+| ViteVenom | `@vite-ln/build-ts` | 5.15.10 |
+| ViteVenom | `@uw010010/vite-tree` | 3.4.2, 3.4.3, 3.6.1 |
+
+Note the typosquat shape: `sass-format` vs `sass-formats`, `rate-limit-flexible`
+vs the legitimate `rate-limiter-flexible`, `tailwindcss-merge` vs the legitimate
+`tailwind-merge`. Compare against what the project actually intended to install.
+
+**Associated npm maintainer accounts** — treat any package published by these as
+hostile: `successkeyteck`, `vite-mcp`, `vite-pro`, `vitets`, `vite-ts`,
+`vite-tab`, `vite-ln`, `uw010010`.
+
+**Additional campaign markers:** `A6-519-81`, `A6-420`, `A6-317`, `A6-318`.
+
+**Packagist:** ten PHP packages, including `thiio/kubernetes-php-sdk`,
+`arsl/optima-class`, `olc/olc-php`, `sevenspan/laravel-whatsapp` and several other
+`sevenspan/*` libraries.
+
 ## Propagation artifacts
 - `temp_auto_push.bat` — silent rewrite + force-push driver
 - `temp_interactive_push.bat` — interactive variant of the above

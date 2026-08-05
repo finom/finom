@@ -41,7 +41,7 @@ Pick scope in this order:
    - `.claude/skills/polinrider-scan/` inside the project → **local**, root=`$PWD`
    - `~/.claude/skills/polinrider-scan/` → **global**, root=`$HOME`
 
-State the resolved scope and root in one sentence before running checks. **Local** scope skips Phases 11 and 12 (system persistence and GitHub repo search). **Global** scope runs everything.
+State the resolved scope and root in one sentence before running checks. **Local** scope skips Phases 11 and 12 (system persistence and GitHub repo search). **Global** scope runs everything. Phase 13 (git refs and object database) runs in **both** scopes — it is per-repository, not per-machine.
 
 Set the resolved root in your shell environment for the rest of the scan:
 
@@ -56,6 +56,12 @@ Read [`references/iocs.md`](references/iocs.md) before starting Phase 1. The fil
 ## Step 3 — Run the scan
 
 Run phases in order. **Phases 1 and 2 (active threats) take priority** — if anything matches there, the infection is currently live and exfiltrating. Capture the findings, finish the scan, then remediate per Step 5.
+
+**Phase 13 is not optional.** Phases 3–10 all read the working tree; a repository
+whose files are clean can still carry the payload in its git objects, and reporting
+"clean" without having run Phase 13 is the single easiest way to miss a live
+infection. Never state a clean result without saying whether the git object store
+was checked.
 
 For all `find` invocations, use these standard exclusions to avoid scanning irrelevant directories:
 
@@ -167,21 +173,30 @@ A Tier B file is only meaningful **if it also appears in Tier A results** — th
 
 ### Phase 4 — Config file infection (the trailing-whitespace bomb)
 
-This is the primary infection vector. Find candidate config files:
+This is the primary infection vector. Find candidate config files.
+
+**Match on shape, not on a list of known names.** The payload targets whatever
+JS/TS config the project actually builds through, so an enumerated list of
+framework names is always one framework behind — a real infection was found in
+`vovk.config.mjs`, which no name list predicted. Anything matching
+`*.config.{js,mjs,cjs,ts,mts,cts}` is a candidate regardless of what the tool is
+called, plus the legacy dotfile and gulp/grunt-style names that don't follow the
+`*.config.*` convention:
 
 ```bash
 find "$ROOT" -type f \
-  \( -name "postcss.config.*" -o -name "tailwind.config.*" -o -name "eslint.config.*" \
-     -o -name "next.config.*" -o -name "vite.config.*" -o -name "webpack.config.*" \
-     -o -name "astro.config.*" -o -name "gridsome.config.*" -o -name "vue.config.*" \
-     -o -name "rollup.config.*" -o -name "babel.config.*" -o -name "svelte.config.*" \
-     -o -name "nuxt.config.*" -o -name "remix.config.*" -o -name "qwik.config.*" \
-     -o -name "solid.config.*" -o -name "stylelint.config.*" -o -name "prettier.config.*" \
-     -o -name "commitlint.config.*" -o -name ".eslintrc*" -o -name "truffle.js" \
-     -o -name "jest.config.*" -o -name "vitest.config.*" \) \
+  \( -name "*.config.js" -o -name "*.config.mjs" -o -name "*.config.cjs" \
+     -o -name "*.config.ts" -o -name "*.config.mts" -o -name "*.config.cts" \
+     -o -name ".eslintrc*" -o -name ".babelrc*" -o -name ".stylelintrc*" \
+     -o -name ".prettierrc*" -o -name "gulpfile.js" -o -name "Gruntfile.js" \
+     -o -name "truffle.js" \) \
   -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*" \
   -not -path "*/dist/*" -not -path "*/build/*" -print 2>/dev/null
 ```
+
+The known-target list in [`references/iocs.md`](references/iocs.md) is still
+useful for triage — a hit in `postcss.config.mjs` is more likely real than one in
+an obscure config — but it must not be what limits the search.
 
 For each candidate, compute four signals. `grep -c` exits 1 when nothing matches, so capture the count defensively:
 
@@ -260,6 +275,30 @@ grep -nE 'folderOpen|"reveal":\s*"never"|"echo":\s*false|"hide":\s*true|e9b53a7c
 
 Also check `.vscode/settings.json` for unusual `terminal.integrated.profiles.*` overrides, custom `npm.packageManager` paths pointing outside `/usr/local`, or `.vscode/extensions.json` recommending unfamiliar publishers.
 
+**Installed extensions (global scope).** The campaign ships malicious IDE *and*
+browser extensions, not just packages, so enumerate what is actually installed and
+grep the extension trees for the same IOCs:
+
+```bash
+for d in ~/.vscode/extensions ~/.cursor/extensions ~/.windsurf/extensions \
+         ~/.vscode-insiders/extensions ~/.vscode-server/extensions; do
+  [ -d "$d" ] && { echo "--- $d ---"; ls -1 "$d"; }
+done
+
+for d in ~/.vscode/extensions ~/.cursor/extensions ~/.windsurf/extensions \
+         "$HOME/Library/Application Support/Google/Chrome"/*/Extensions \
+         "$HOME/Library/Application Support/BraveSoftware/Brave-Browser"/*/Extensions \
+         "$HOME/Library/Application Support/Microsoft Edge"/*/Extensions; do
+  [ -d "$d" ] && grep -rlF -e "global['!']" -e "global['_V']" -e '_$_1e42' \
+      -e 'rmcej' -e 'Cot%3t=shtP' -e '260120.vercel.app' -e 'vscode-bootstrapper' \
+      -e 'trongrid' -e 'aptoslabs' "$d" 2>/dev/null | head
+done
+```
+
+Read the publisher of anything unfamiliar. A Chrome extension directory is named
+by its 32-character store ID; resolve the human name from its `manifest.json`
+(`name`, or the `__MSG_*` key resolved via `_locales/en/messages.json`).
+
 ### Phase 7 — Fake binaries
 
 The dropper's second stage is sometimes hidden as a font file (`.woff2`, `.ttf`, `.eot`, `.otf`) or generic binary (`.bin`, `.dat`, `.ico`) in the repo. The file extension is a lie; the content is ASCII script:
@@ -319,21 +358,35 @@ Any hit is malicious — none of these patterns belong in a project's git hooks.
 
 ### Phase 9 — Malicious npm packages
 
-Scan for installed copies of known-malicious packages:
+Scan for installed copies of known-malicious packages. This covers both the
+original `tailwind*` family and the ChainVeil / ViteVenom clusters added in the
+July 2026 expansion — see [`references/iocs.md`](references/iocs.md) for the full
+table and the associated maintainer accounts:
 
 ```bash
 for pkg in tailwindcss-style-animate tailwind-mainanimation tailwind-autoanimation \
            tailwind-animationbased tailwindcss-typography-style tailwindcss-style-modify \
-           tailwindcss-animate-style; do
-  find "$ROOT" -path "*/node_modules/$pkg" -type d 2>/dev/null
+           tailwindcss-animate-style \
+           tailwindcss-animatics tailwindcss-animates-kit tailwindcss-merge \
+           sass-formats sass-format clsx-tailwind typeorm-encrypt \
+           rate-limit-flexible rate-limits-flexible \
+           @vite-mcp @vite-pro @vitets @vite-ts @vite-tab @vite-ln @uw010010; do
+  find "$ROOT" -path "*/node_modules/$pkg" 2>/dev/null
 done
 ```
+
+Several of these are typosquats of real packages — `sass-format` vs `sass-formats`,
+`rate-limit-flexible` vs the legitimate `rate-limiter-flexible`, `tailwindcss-merge`
+vs the legitimate `tailwind-merge`. A hit is only meaningful once you have checked
+which one the project actually meant to depend on.
 
 Direct dependencies in `package.json`:
 
 ```bash
+BAD='tailwindcss-style-animate|tailwind-mainanimation|tailwind-autoanimation|tailwind-animationbased|tailwindcss-typography-style|tailwindcss-style-modify|tailwindcss-animate-style|tailwindcss-animatics|tailwindcss-animates-kit|tailwindcss-merge|sass-formats?|clsx-tailwind|typeorm-encrypt|rate-limits?-flexible|@vite-mcp/|@vite-pro/|@vitets/|@vite-ts/|@vite-tab/|@vite-ln/|@uw010010/'
+
 find "$ROOT" -name "package.json" -not -path "*/node_modules/*" -print0 2>/dev/null \
-  | xargs -0 grep -lE '"tailwindcss-style-animate"|"tailwind-mainanimation"|"tailwind-autoanimation"|"tailwind-animationbased"|"tailwindcss-typography-style"|"tailwindcss-style-modify"|"tailwindcss-animate-style"' 2>/dev/null
+  | xargs -0 grep -lE "\"($BAD)\"" 2>/dev/null
 ```
 
 Lockfiles (catch installations even if the package was later removed from `package.json`). The `-a` flag makes `grep` treat binary lockfiles like `bun.lockb` as text:
@@ -342,7 +395,7 @@ Lockfiles (catch installations even if the package was later removed from `packa
 find "$ROOT" \
   \( -name "package-lock.json" -o -name "yarn.lock" -o -name "pnpm-lock.yaml" -o -name "bun.lockb" \) \
   -not -path "*/node_modules/*" -print0 2>/dev/null \
-  | xargs -0 grep -alE 'tailwindcss-style-animate|tailwind-mainanimation|tailwind-autoanimation|tailwind-animationbased|tailwindcss-typography-style|tailwindcss-style-modify|tailwindcss-animate-style' 2>/dev/null
+  | xargs -0 grep -alE "$BAD" 2>/dev/null
 ```
 
 Suspicious lifecycle scripts in any package — `postinstall` / `preinstall` / `install` running `node -e`, `eval`, encoded payloads, or shell pipelines:
@@ -470,6 +523,75 @@ done
 
 Any non-zero count surviving those exclusions is a real finding. Drill in with the full `gh api "/search/code?q=...${EXCLUDE}" --jq '.items[]|"\(.repository.name)/\(.path)"'` to surface repo + path. Watch for `code_search` rate limits (10 / minute on most accounts) — pace the drill-ins.
 
+Code search only indexes the **default branch**. It cannot see other branches, so
+a clean result here says nothing about them — Phase 13 is what covers those.
+
+### Phase 13 — Git refs and object database (all scopes)
+
+**Run this in every scope.** Every other phase inspects the working tree, so a
+machine whose files are clean is reported clean — while an infected tree still
+sits in `refs/remotes/origin/*`, in an unmerged branch, or in a stash. This is a
+real observed outcome: a filesystem scan came back clean while several repos held
+payload-bearing remote-tracking refs, and `git checkout` of any of them would have
+re-infected the working tree instantly.
+
+Write the IOC strings to a file once, then grep every ref of every repo:
+
+```bash
+PAT=/tmp/polinrider-patterns.txt
+cat > "$PAT" <<'EOF'
+rmcej%otb%
+_$_1e42
+global['!']
+global['_V']
+Cot%3t=shtP
+function MDy
+temp_auto_push.bat
+EOF
+
+find "$ROOT" -name ".git" -type d -not -path "*/node_modules/*" 2>/dev/null | while read -r g; do
+  d=$(dirname "$g")
+  for ref in $(git -C "$d" for-each-ref --format='%(refname:short)' \
+                 refs/heads refs/remotes refs/tags refs/stash 2>/dev/null | grep -v '/HEAD$'); do
+    files=$(git -C "$d" grep -I -l -F -f "$PAT" "$ref" -- 2>/dev/null \
+            | grep -vE 'polinrider|iocs\.md|SKILL\.md|scanner|README\.md')
+    [ -n "$files" ] && echo "DIRTY  $d  $ref  ->  $(echo "$files" | tr '\n' ' ')"
+  done
+done
+```
+
+Interpreting the result depends on **which kind of ref** matched:
+
+- `refs/heads/*` (a local branch tip) — live. Checking that branch out infects the tree.
+- `refs/remotes/origin/*` — may be a **stale cache**. If fetches have been failing
+  (revoked SSH key, expired token) these refs freeze at their pre-cleanup state and
+  look exactly like a fresh infection. Always confirm against the live remote
+  before alarming the user:
+
+  ```bash
+  git -C "$d" ls-remote --heads origin | head        # can we even reach the remote?
+  gh api "repos/OWNER/REPO/contents/PATH?ref=BRANCH" -H "Accept: application/vnd.github.raw"
+  ```
+
+  Note `gh api .../contents/...` decoded via `base64 -d` can silently mangle larger
+  files — prefer the `Accept: application/vnd.github.raw` header shown above.
+
+- A ref whose upstream branch no longer exists — pure local residue; `git fetch --prune` clears it.
+
+Remediate by refreshing the refs, then dropping the now-unreachable objects. This
+keeps every reachable commit, including unpushed local work:
+
+```bash
+git -C "$d" fetch --prune origin
+git -C "$d" reflog expire --expire-unreachable=now --all
+git -C "$d" gc --prune=now
+```
+
+Verify afterwards that the greps above return nothing.
+
+**Do not report "clean" from a filesystem scan alone.** Say which of the two was
+checked — the working tree, the git object store, or both.
+
 ## Step 4 — Interpret findings
 
 Categorize each finding:
@@ -539,13 +661,14 @@ Output this structure. Fill every section, even when empty.
 - [ ] Phase 3 — Source signatures
 - [ ] Phase 4 — Config file infection
 - [ ] Phase 5 — Build cache infection
-- [ ] Phase 6 — VS Code / Cursor droppers
+- [ ] Phase 6 — VS Code / Cursor droppers + installed IDE/browser extensions
 - [ ] Phase 7 — Fake binaries
 - [ ] Phase 8 — Propagation artifacts (.bat / .gitignore / hooks)
 - [ ] Phase 9 — Malicious npm packages
 - [ ] Phase 10 — Obfuscation heuristics
 - [ ] Phase 11 — System persistence (global only)
 - [ ] Phase 12 — GitHub repo search (global only)
+- [ ] Phase 13 — Git refs and object database (all scopes)
 
 ### Recommended actions
 - Credentials to rotate: …
